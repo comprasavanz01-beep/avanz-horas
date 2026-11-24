@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Avanz Horas</title>
+<meta name="theme-color" content="#01448D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Avanz Horas">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  html, body { margin: 0; height: 100%; background: #01448D; overflow: hidden; }
+  #app {
+    position: fixed; left: 0; right: 0;
+    top: env(safe-area-inset-top, 0px); bottom: 0;
+    width: 100%; height: calc(100% - env(safe-area-inset-top, 0px));
+    border: 0; background: #01448D;
+  }
+  #splash {
+    position: fixed; inset: 0; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+    background: linear-gradient(160deg, #01448D 0%, #0165B3 60%, #0185CF 100%);
+    color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 24px;
+    transition: opacity .35s;
+  }
+  #splash img { width: 130px; }
+  #splash.fuera { opacity: 0; pointer-events: none; }
+  .spin { width: 30px; height: 30px; border-radius: 50%; border: 3px solid rgba(255,255,255,.3); border-top-color: #fff; animation: g 0.9s linear infinite; }
+  @keyframes g { to { transform: rotate(360deg); } }
+  #msg { font-size: 15px; opacity: .9; max-width: 280px; line-height: 1.4; }
+  #msg button { margin-top: 14px; font: inherit; font-weight: 600; color: #01448D; background: #fff; border: 0; border-radius: 10px; padding: 11px 20px; }
+</style>
+</head>
+<body>
+<div id="splash">
+  <img src="logo-blanco.png" alt="Avanz Ingeniería">
+  <div class="spin" id="spin"></div>
+  <div id="msg"></div>
+</div>
+<iframe id="app" title="Avanz Horas" allow="clipboard-write"></iframe>
+
+<script>
+  // ⬇⬇ Pegá acá el link de la app web (el que termina en /exec) ⬇⬇
+  const APP_URL = 'https://script.google.com/macros/s/AKfycbyAKfXHBNnG-kd5OcmuWineEDpvqytEgjOHt4xQxunD7EzpRoQ3ms1H3K720mVBWO1f/exec';
+
+  const splash = document.getElementById('splash');
+  const msg = document.getElementById('msg');
+  const frame = document.getElementById('app');
+
+  function cargar() {
+    msg.innerHTML = '';
+    document.getElementById('spin').style.display = '';
+    splash.classList.remove('fuera');
+    if (!navigator.onLine) {
+      document.getElementById('spin').style.display = 'none';
+      msg.innerHTML = 'Sin conexión a internet.<br><button onclick="cargar()">Reintentar</button>';
+      return;
+    }
+    frame.src = APP_URL;
+  }
+  frame.addEventListener('load', () => { if (frame.src) splash.classList.add('fuera'); });
+  setTimeout(() => splash.classList.add('fuera'), 12000);
+  window.addEventListener('online', () => { if (!frame.src) cargar(); });
+
+  cargar();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>
